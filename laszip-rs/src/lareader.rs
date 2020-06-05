@@ -3,11 +3,13 @@ use crate::laheader::LazHeader;
 use crate::lapoint::LazPoint;
 use crate::lautil::ErrorHandler;
 
+/// Reader of laz points
 pub struct LazReader {
     data: Vec<u8>,
     ptr: laszip_sys::laszip_POINTER,
 }
 
+/// Iterator over points of a reader
 pub struct LazPointReaderIterator<'a> {
     ptr: &'a laszip_sys::laszip_POINTER,
     point_ptr: *mut laszip_sys::laszip_point_struct,
@@ -32,6 +34,7 @@ impl Drop for LazReader {
 }
 
 impl LazReader {
+    /// Creates a reader from a file
     pub fn from_file(file_name: &str) -> Result<Self> {
         let file = Self {
             data: Default::default(),
@@ -39,9 +42,10 @@ impl LazReader {
         };
         let mut is_compressed = 0;
         file.handle_error(unsafe {
+            let cfile_name = std::ffi::CString::new(file_name).unwrap();
             laszip_sys::laszip_open_reader(
                 file.ptr,
-                std::ffi::CString::new(file_name.clone()).unwrap().as_ptr(),
+                cfile_name.as_ptr(),
                 &mut is_compressed,
             )
         })?;
@@ -49,6 +53,7 @@ impl LazReader {
         Ok(file)
     }
 
+    /// Creates a reader from a vector
     pub fn from_vec(data: Vec<u8>) -> Result<Self> {
         let file = Self {
             data,
@@ -65,6 +70,7 @@ impl LazReader {
         Ok(file)
     }
 
+    /// Gets the header
     pub fn get_header(&self) -> Result<&LazHeader> {
         let mut header_ptr = std::ptr::null_mut();
         self.handle_error(unsafe {
@@ -74,6 +80,7 @@ impl LazReader {
         Ok(unsafe { &*header_ptr })
     }
 
+    /// Reads the scale factor of the xyz from the header
     pub fn scale(&self) -> Result<crate::geo::Point3D> {
         let header = self.get_header()?;
         Ok(crate::geo::Point3D::new(
@@ -83,6 +90,7 @@ impl LazReader {
         ))
     }
 
+    /// Reads the offset of the xyz from the header
     pub fn offset(&self) -> Result<crate::geo::Point3D> {
         let header = self.get_header()?;
         Ok(crate::geo::Point3D::new(
@@ -92,11 +100,13 @@ impl LazReader {
         ))
     }
 
+    /// Reads the number of points of the file from the header
     pub fn get_number_of_points(&self) -> Result<usize> {
         let header = self.get_header()?;
         Ok(header.number_of_point_records as usize)
     }
 
+    ///
     pub fn iter_points(&'_ self) -> Result<LazPointReaderIterator> {
         let mut p = std::ptr::null_mut();
         self.handle_error(unsafe { laszip_sys::laszip_get_point_pointer(self.ptr, &mut p) })?;

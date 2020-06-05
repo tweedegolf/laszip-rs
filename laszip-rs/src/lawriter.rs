@@ -122,4 +122,8 @@ impl LazWriter {
 
         Ok(unsafe { &mut *header_ptr })
     }
+
+    pub fn get_number_of_points_written(&self) -> usize {
+        self.points_written
+    }
 }

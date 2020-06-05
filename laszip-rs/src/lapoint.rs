@@ -57,6 +57,6 @@ impl LazPointCompare for LazPoint {
                 inside = !inside;
             }
         }
-        return inside;
+        inside
     }
 }

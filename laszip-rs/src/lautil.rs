@@ -1,5 +1,6 @@
 use crate::error::{LaszipError, Result};
 
+/// Loads the laszip library
 pub fn load_laszip_library() {
     let result = unsafe { laszip_sys::laszip_load_dll() };
     if result != 0 {
@@ -11,6 +12,7 @@ pub fn load_laszip_library() {
     }
 }
 
+///
 pub fn create_laszip() -> laszip_sys::laszip_POINTER {
     let mut reader: laszip_sys::laszip_POINTER = std::ptr::null_mut();
     assert_eq!(0, unsafe { laszip_sys::laszip_create(&mut reader) });
@@ -18,6 +20,7 @@ pub fn create_laszip() -> laszip_sys::laszip_POINTER {
     reader
 }
 
+///
 pub trait ErrorHandler {
     fn handle_error(&self, res: laszip_sys::laszip_I32) -> Result<()>;
 }
