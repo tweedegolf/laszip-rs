@@ -1,7 +1,10 @@
 [package]
 name = "laszip"
 version = "0.1.0"
-authors = ["Erik Jonkers <erik@tweedegolf.com>"]
+authors = ["Ruben Nijveld <ruben@tweedegolf.com>", "Erik Jonkers <erik@tweedegolf.com>"]
 edition = "2018"
 
+
 [dependencies]
+laszip-sys = { path = "../laszip-sys" }
+libc = "0.2.69"
