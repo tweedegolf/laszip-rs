@@ -6,10 +6,11 @@ Provides bindings to LASzip, the open-source LiDAR compressor, as well as wrappe
 ``` git submodule update --init ```
 
 The laszip-sys crate included in this repository needs to access our customized
-version of laszip-sys. When running using `cargo run` or `cargo run --release`
-the dynamic library path is automatically included. When you want to run a
-binary directly you will need to install the library yourself, or add the library path to your environment, the latter can be done using this command, where you need to find
-the hash for your laszip-sys build yourself:
+version of laszip-sys. When running using `cargo` the dynamic library path is 
+automatically included. 
+When you want to run a binary directly you will need to install the library yourself, 
+or add the library path to your environment, the latter can be done using this command, 
+where you need to find the hash for your laszip-sys build yourself:
 
 ```bash
 export LD_LIBRARY_PATH="$(pwd)/target/release/build/laszip-sys-<HASH>/out/lib"
