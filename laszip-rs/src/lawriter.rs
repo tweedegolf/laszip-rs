@@ -6,6 +6,7 @@ use crate::lautil::ErrorHandler;
 pub struct LazWriter {
     ptr: laszip_sys::laszip_POINTER,
     points_written: usize,
+    is_file: bool,
 }
 
 impl ErrorHandler for LazWriter {
@@ -17,6 +18,11 @@ impl ErrorHandler for LazWriter {
 impl Drop for LazWriter {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
+            if self.is_file {
+                // Note: calling close_writer on a vec created writer panics. Why?
+                self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })
+                    .unwrap();
+            }
             self.handle_error(unsafe { laszip_sys::laszip_destroy(self.ptr) })
                 .unwrap();
         }
@@ -24,7 +30,7 @@ impl Drop for LazWriter {
 }
 
 impl LazWriter {
-    pub fn new(
+    pub fn from_vec(
         alloc: usize,
         compress: bool,
         scale: &crate::geo::Point3D,
@@ -33,6 +39,7 @@ impl LazWriter {
         let mut writer = LazWriter {
             ptr: crate::lautil::create_laszip(),
             points_written: 0,
+            is_file: false,
         };
         let header = writer.header_mut()?;
         header.set_scale(scale);
@@ -42,6 +49,33 @@ impl LazWriter {
         writer.handle_error(unsafe {
             laszip_sys::laszip_open_writer_array(writer.ptr, alloc as i64, compress as i32)
         })?;
+        Ok(writer)
+    }
+
+    pub fn from_file(
+        file_name: &str,
+        compress: bool,
+        scale: &crate::geo::Point3D,
+        offset: &crate::geo::Point3D,
+    ) -> Result<Self> {
+        let mut writer = Self {
+            ptr: crate::lautil::create_laszip(),
+            points_written: 0,
+            is_file: true,
+        };
+        let header = writer.header_mut()?;
+        header.set_scale(scale);
+        header.set_offset(offset);
+        header.set_version(1, 2);
+
+        writer.handle_error(unsafe {
+            laszip_sys::laszip_open_writer(
+                writer.ptr,
+                std::ffi::CString::new(file_name).unwrap().as_ptr(),
+                compress as i32,
+            )
+        })?;
+
         Ok(writer)
     }
 

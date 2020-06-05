@@ -1,14 +1,12 @@
 #[cfg(test)]
-mod tests {
+mod file_tests {
     use std::sync::Once;
     static LOAD: Once = Once::new();
 
     #[test]
     fn it_loads_lib() {
         LOAD.call_once(|| {
-            let result = unsafe {
-                laszip_sys::laszip_load_dll()
-            };
+            let result = unsafe { laszip_sys::laszip_load_dll() };
             assert_eq!(result, 0);
         });
     }
@@ -19,9 +17,7 @@ mod tests {
         use std::ptr;
 
         LOAD.call_once(|| {
-            let result = unsafe {
-                laszip_sys::laszip_load_dll()
-            };
+            let result = unsafe { laszip_sys::laszip_load_dll() };
             assert_eq!(result, 0);
         });
 

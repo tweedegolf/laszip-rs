@@ -32,6 +32,23 @@ impl Drop for LazReader {
 }
 
 impl LazReader {
+    pub fn from_file(file_name: &str) -> Result<Self> {
+        let file = Self {
+            data: Default::default(),
+            ptr: crate::lautil::create_laszip(),
+        };
+        let mut is_compressed = 0;
+        file.handle_error(unsafe {
+            laszip_sys::laszip_open_reader(
+                file.ptr,
+                std::ffi::CString::new(file_name.clone()).unwrap().as_ptr(),
+                &mut is_compressed,
+            )
+        })?;
+
+        Ok(file)
+    }
+
     pub fn from_vec(data: Vec<u8>) -> Result<Self> {
         let file = Self {
             data,
