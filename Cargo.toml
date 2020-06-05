@@ -2,4 +2,5 @@
 
 members = [
     "laszip-rs",
+    "laszip-sys",
 ]

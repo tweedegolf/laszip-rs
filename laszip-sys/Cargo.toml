@@ -1,0 +1,11 @@
+[package]
+name = "laszip-sys"
+version = "0.1.0"
+authors = ["Ruben Nijveld <ruben@tweedegolf.com>"]
+edition = "2018"
+build = "build.rs"
+links = "laszip"
+
+[build-dependencies]
+bindgen = "0.53.2"
+cmake = "0.1.42"

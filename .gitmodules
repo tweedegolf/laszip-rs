@@ -1,0 +1,3 @@
+[submodule "laszip-sys/laszip"]
+	path = laszip-sys/laszip
+	url = https://github.com/tweedegolf/LASzip.git
