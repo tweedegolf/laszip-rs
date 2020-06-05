@@ -1,0 +1,7 @@
+[package]
+name = "laszip"
+version = "0.1.0"
+authors = ["Erik Jonkers <erik@tweedegolf.com>"]
+edition = "2018"
+
+[dependencies]
