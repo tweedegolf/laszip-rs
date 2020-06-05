@@ -7,5 +7,5 @@ build = "build.rs"
 links = "laszip"
 
 [build-dependencies]
-bindgen = "0.53.2"
-cmake = "0.1.42"
+bindgen = "0.54.0"
+cmake = "0.1.44"
