@@ -34,7 +34,9 @@
 
 pub mod error;
 pub mod geo;
+pub mod lafi;
 mod laheader;
+pub mod lapi;
 mod lapoint;
 mod lareader;
 mod lautil;

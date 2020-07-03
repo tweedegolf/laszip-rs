@@ -1,5 +1,25 @@
 pub type LazPoint = laszip_sys::laszip_point_struct;
 
+pub trait LazNormalizedPoint {
+    fn x(&self, scale: f64, offset: f64) -> f64;
+    fn y(&self, scale: f64, offset: f64) -> f64;
+    fn z(&self, scale: f64, offset: f64) -> f64;
+}
+
+impl LazNormalizedPoint for LazPoint {
+    fn x(&self, scale: f64, offset: f64) -> f64 {
+        self.X as f64 * scale + offset
+    }
+
+    fn y(&self, scale: f64, offset: f64) -> f64 {
+        self.Y as f64 * scale + offset
+    }
+
+    fn z(&self, scale: f64, offset: f64) -> f64 {
+        self.Z as f64 * scale + offset
+    }
+}
+
 pub trait LazPointCompare {
     fn within_2d(
         &self,

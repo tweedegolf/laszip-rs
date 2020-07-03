@@ -3,6 +3,7 @@ use crate::laheader::{LazHeader, LazHeaderWriter};
 use crate::lapoint::LazPoint;
 use crate::lautil::ErrorHandler;
 
+/// Writer of laz points
 pub struct LazWriter {
     ptr: laszip_sys::laszip_POINTER,
     points_written: usize,
@@ -30,6 +31,12 @@ impl Drop for LazWriter {
 }
 
 impl LazWriter {
+    /// Creates a laszip writer in memory
+    ///
+    /// * `alloc`: Size in bytes of blocks to be allocated in memory
+    /// * `compress`: True for compressed output (laz), false for uncompressed (las)
+    /// * `scale`: The scale to apply to writer points
+    /// * `offset`: The offset to apply to writer points
     pub fn from_vec(
         alloc: usize,
         compress: bool,
