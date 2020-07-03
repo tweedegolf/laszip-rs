@@ -25,7 +25,8 @@ fn main() -> Result<(), error::LaszipError> {
 
     // get number of points written
     println!(
-        "{}",
+        "reader points: {}, writer points: {}",
+        pipeline.reader.unwrap().get_number_of_points()?,
         pipeline.writer.unwrap().get_number_of_points_written()
     );
 
