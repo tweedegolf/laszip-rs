@@ -7,6 +7,7 @@ use crate::lautil::ErrorHandler;
 pub struct LazReader {
     data: Vec<u8>,
     ptr: laszip_sys::laszip_POINTER,
+    is_open: bool,
 }
 
 /// Iterator over points of a reader
@@ -25,8 +26,10 @@ impl ErrorHandler for LazReader {
 impl Drop for LazReader {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
-            self.handle_error(unsafe { laszip_sys::laszip_close_reader(self.ptr) })
-                .unwrap();
+            if self.is_open == true {
+                self.handle_error(unsafe { laszip_sys::laszip_close_reader(self.ptr) })
+                    .unwrap();
+            }
             self.handle_error(unsafe { laszip_sys::laszip_destroy(self.ptr) })
                 .unwrap();
         }
@@ -36,28 +39,28 @@ impl Drop for LazReader {
 impl LazReader {
     /// Creates a reader from a file
     pub fn from_file(file_name: &str) -> Result<Self> {
-        let file = Self {
+        let mut file = Self {
             data: Default::default(),
             ptr: crate::lautil::create_laszip(),
+            is_open: false,
         };
         let mut is_compressed = 0;
         file.handle_error(unsafe {
             let cfile_name = std::ffi::CString::new(file_name).unwrap();
-            laszip_sys::laszip_open_reader(
-                file.ptr,
-                cfile_name.as_ptr(),
-                &mut is_compressed,
-            )
+            laszip_sys::laszip_open_reader(file.ptr, cfile_name.as_ptr(), &mut is_compressed)
         })?;
+
+        file.is_open = true;
 
         Ok(file)
     }
 
     /// Creates a reader from a vector
     pub fn from_vec(data: Vec<u8>) -> Result<Self> {
-        let file = Self {
+        let mut file = Self {
             data,
             ptr: crate::lautil::create_laszip(),
+            is_open: false,
         };
 
         let data_ptr = file.data.as_ptr();
@@ -66,6 +69,8 @@ impl LazReader {
         file.handle_error(unsafe {
             laszip_sys::laszip_open_reader_array(file.ptr, data_ptr, data_len, &mut is_compressed)
         })?;
+
+        file.is_open = true;
 
         Ok(file)
     }

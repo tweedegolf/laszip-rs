@@ -7,7 +7,7 @@ use crate::lautil::ErrorHandler;
 pub struct LazWriter {
     ptr: laszip_sys::laszip_POINTER,
     points_written: usize,
-    is_file: bool,
+    is_open: bool,
 }
 
 impl ErrorHandler for LazWriter {
@@ -19,8 +19,7 @@ impl ErrorHandler for LazWriter {
 impl Drop for LazWriter {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
-            if self.is_file {
-                // Note: calling close_writer on a vec created writer panics. Why?
+            if self.is_open {
                 self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })
                     .unwrap();
             }
@@ -46,7 +45,7 @@ impl LazWriter {
         let mut writer = LazWriter {
             ptr: crate::lautil::create_laszip(),
             points_written: 0,
-            is_file: false,
+            is_open: false,
         };
         let header = writer.header_mut()?;
         header.set_scale(scale);
@@ -56,6 +55,9 @@ impl LazWriter {
         writer.handle_error(unsafe {
             laszip_sys::laszip_open_writer_array(writer.ptr, alloc as i64, compress as i32)
         })?;
+
+        writer.is_open = true;
+
         Ok(writer)
     }
 
@@ -68,7 +70,7 @@ impl LazWriter {
         let mut writer = Self {
             ptr: crate::lautil::create_laszip(),
             points_written: 0,
-            is_file: true,
+            is_open: false,
         };
         let header = writer.header_mut()?;
         header.set_scale(scale);
@@ -82,6 +84,8 @@ impl LazWriter {
                 compress as i32,
             )
         })?;
+
+        writer.is_open = true;
 
         Ok(writer)
     }
