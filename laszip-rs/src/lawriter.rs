@@ -20,8 +20,11 @@ impl Drop for LazWriter {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
             if self.is_open {
+                println!("drop, is_open true, closing writer");
                 self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })
                     .unwrap();
+            } else {
+                println!("drop, is_open false, skip closing writer");
             }
             self.handle_error(unsafe { laszip_sys::laszip_destroy(self.ptr) })
                 .unwrap();
@@ -78,11 +81,8 @@ impl LazWriter {
         header.set_version(1, 2);
 
         writer.handle_error(unsafe {
-            laszip_sys::laszip_open_writer(
-                writer.ptr,
-                std::ffi::CString::new(file_name).unwrap().as_ptr(),
-                compress as i32,
-            )
+            let c_file_name = std::ffi::CString::new(file_name).unwrap();
+            laszip_sys::laszip_open_writer(writer.ptr, c_file_name.as_ptr(), compress as i32)
         })?;
 
         writer.is_open = true;
@@ -109,8 +109,10 @@ impl LazWriter {
         Ok(())
     }
 
-    pub fn into_data(self) -> Result<Vec<u8>> {
+    pub fn into_data(&mut self) -> Result<Vec<u8>> {
         self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })?;
+        println!("into_data, closed writer, setting is_open false");
+        self.is_open = false;
         let mut data: *mut laszip_sys::laszip_U8 = std::ptr::null_mut();
         let mut data_size: i64 = 0;
         self.handle_error(unsafe {
