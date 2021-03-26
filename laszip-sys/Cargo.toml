@@ -1,11 +1,11 @@
 [package]
 name = "laszip-sys"
-version = "0.1.2"
+version = "0.1.4"
 authors = ["Ruben Nijveld <ruben@tweedegolf.com>"]
 edition = "2018"
 build = "build.rs"
 links = "laszip"
 
 [build-dependencies]
-bindgen = "0.54.0"
+bindgen = "0.57.0"
 cmake = "0.1.44"

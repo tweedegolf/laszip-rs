@@ -13,7 +13,6 @@ mod file_tests {
 
     #[test]
     fn it_counts_points_in_file() {
-        use std::ffi::CString;
         use std::ptr;
 
         LOAD.call_once(|| {
@@ -27,11 +26,12 @@ mod file_tests {
             assert_eq!(0, laszip_sys::laszip_create(&mut reader));
 
             let mut is_compressed = 0;
+            let c_file_name = std::ffi::CString::new(file_name).unwrap();
             assert_eq!(
                 0,
                 laszip_sys::laszip_open_reader(
                     reader,
-                    CString::new(file_name).unwrap().as_ptr(),
+                    c_file_name.as_ptr(),
                     &mut is_compressed,
                 )
             );

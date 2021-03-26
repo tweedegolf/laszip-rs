@@ -26,7 +26,7 @@ impl ErrorHandler for LazReader {
 impl Drop for LazReader {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
-            if self.is_open == true {
+            if self.is_open {
                 self.handle_error(unsafe { laszip_sys::laszip_close_reader(self.ptr) })
                     .unwrap();
             }

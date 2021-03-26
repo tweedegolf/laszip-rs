@@ -20,11 +20,8 @@ impl Drop for LazWriter {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
             if self.is_open {
-                println!("drop, is_open true, closing writer");
                 self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })
                     .unwrap();
-            } else {
-                println!("drop, is_open false, skip closing writer");
             }
             self.handle_error(unsafe { laszip_sys::laszip_destroy(self.ptr) })
                 .unwrap();
@@ -91,27 +88,17 @@ impl LazWriter {
     }
 
     pub fn push(&mut self, point: &LazPoint) -> Result<()> {
-        self.handle_error(unsafe {
-            // println!("set point");
-            laszip_sys::laszip_set_point(self.ptr, point)
-        })?;
-        self.handle_error(unsafe {
-            // println!("write point");
-            laszip_sys::laszip_write_point(self.ptr)
-        })?;
-        self.handle_error(unsafe {
-            // println!("update inventory");
-            laszip_sys::laszip_update_inventory(self.ptr)
-        })?;
+        self.handle_error(unsafe { laszip_sys::laszip_set_point(self.ptr, point) })?;
+        self.handle_error(unsafe { laszip_sys::laszip_write_point(self.ptr) })?;
+        self.handle_error(unsafe { laszip_sys::laszip_update_inventory(self.ptr) })?;
 
         self.points_written += 1;
 
         Ok(())
     }
 
-    pub fn into_data(&mut self) -> Result<Vec<u8>> {
+    pub fn into_data(mut self) -> Result<Vec<u8>> {
         self.handle_error(unsafe { laszip_sys::laszip_close_writer(self.ptr) })?;
-        println!("into_data, closed writer, setting is_open false");
         self.is_open = false;
         let mut data: *mut laszip_sys::laszip_U8 = std::ptr::null_mut();
         let mut data_size: i64 = 0;
